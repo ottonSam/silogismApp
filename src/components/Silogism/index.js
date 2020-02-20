@@ -1,7 +1,9 @@
 import React from 'react';
-import Axios from 'axios';
+const Valida = require('../SilogismController')
 
 import Default from '../Defaults';
+import Reduce from '../Reduce';
+import Irreduce from '../Irreduce';
 
 class Silogism extends React.Component {
   constructor() {
@@ -9,7 +11,7 @@ class Silogism extends React.Component {
     this.state = {
       p1q: "A", p1t1: "", p1t2: "",
       p2q: "A", p2t2: "", p2t1: "",
-      cq: "A", ct1: "", ct2: ""
+      cq: "A", ct1: "", ct2: "", r: 0, md:{}
     };
     this.onChange = (evento) => {
       const state = Object.assign({}, this.state);
@@ -26,19 +28,53 @@ class Silogism extends React.Component {
         "conclusao": [this.state.cq, this.state.ct1, this.state.ct2]
       };
 
-      console.log(Data);
-      Axios({
-        method: 'post',
-        url: 'https://silogism-api.herokuapp.com/',
-        data: Data
-      }).then(function(axiosData){
-        console.log(axiosData);
-      });
-
-    };
+      const state = Object.assign({}, this.state);
+      const NewData = Valida.Valida(Data);
+      state['md'] = NewData;
+      this.setState(state);
+      if(NewData['dadosAux'][0] === 'valid' && NewData['dadosAux'][2] === 'Redutivel'){
+        console.log('valid');
+  
+        state['r'] = 1;
+        this.setState(state);
+      }
+      if(NewData['dadosAux'][0] === 'valid' && NewData['dadosAux'][2] === 'Irredutivel'){
+        console.log('validdd');
+  
+        state['r'] = 2;
+        this.setState(state);
+      }
+      if(NewData['dadosAux'][0] === 'invalid'){
+        console.log('invalid');
+        
+        state['r'] = 0;
+        this.setState(state);
+        var x = 'encontramos os seguintes erros';
+        var aux = '';
+        for (var i = 1; i < NewData['dadosAux'].length; i++){
+          if(i == 1){
+            x = x+': '+NewData['dadosAux'][i]+'; ';
+            aux = aux+x
+          }
+          else{
+            x = NewData['dadosAux'][i]+' ';
+            aux = aux+x
+          }
+        }
+        alert(aux)
+        //aq salva o dado com o erro
+      }
+    }
   }
-
   render() {
+    var rd = <button className='btn btn-primary' onClick={this.onSubmit}>Validar</button>
+    if(this.state.r == 1){
+      rd = <Reduce newdata={this.state.md}/>;
+    }
+    if(this.state.r == 2){
+      rd = <Irreduce newdata={this.state.md}/>;
+    }
+    
     return (
       <div>
         <Default />
@@ -51,6 +87,7 @@ class Silogism extends React.Component {
                 <option value='A'>O ou A</option>
                 <option value='E'>Nenhum ou Nenhuma</option>
                 <option value='I'>Algum ou Alguma</option>
+                <option value='O'>Algum não ou Alguma não</option>
               </select>
             </div>
             <div className='col form-group'>
@@ -71,6 +108,7 @@ class Silogism extends React.Component {
                 <option value='A'>O ou A</option>
                 <option value='E'>Nenhum ou Nenhuma</option>
                 <option value='I'>Algum ou Alguma</option>
+                <option value='O'>Algum não ou Alguma não</option>
               </select>
             </div>
             <div className='col form-group'>
@@ -91,6 +129,7 @@ class Silogism extends React.Component {
                 <option value='A'>O ou A</option>
                 <option value='E'>Nenhum ou Nenhuma</option>
                 <option value='I'>Algum ou Alguma</option>
+                <option value='O'>Algum não ou Alguma não</option>  
               </select>
             </div>
             <div className='col form-group'>
@@ -102,8 +141,9 @@ class Silogism extends React.Component {
             <input required className='form-control' type='text' name='ct2' onChange={this.onChange} value={this.state.ct2}></input>
             </div>
           </div>
-          <button className='btn btn-primary' onClick={this.onSubmit}>Validar</button>
+          {rd}
         </div>
+        
       </div>
     )
   }

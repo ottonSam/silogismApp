@@ -18,9 +18,6 @@ const Defaults = () =>
         <li className="nav-item-active">
           <a className="nav-link btn btn-outline-primary text-primary ml-2" href="/silogism">Validação</a>
         </li>
-        <li className="nav-item-active">
-          <a className="nav-link btn btn-outline-primary text-primary ml-2" href="/reduce">Redução</a>
-        </li>
       </ul>
     </div>
   </div>
